@@ -1,0 +1,135 @@
+﻿<Window x:Class="Timer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Timer"
+        mc:Ignorable="d"
+        Title="Timer" Height="250" Width="320" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Window.DataContext>
+        <local:TimerViewModel />
+    </Window.DataContext>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 各桁の上下ボタンと数字表示（6 列: 分十・分一・分ラベル・秒十・秒一・秒ラベル） -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- 分 十の位 -->
+            <Button Grid.Row="0" Grid.Column="0"
+                    Content="△"
+                    Command="{Binding IncreaseMinuteTensCommand}"
+                    IsEnabled="{Binding AreAdjustButtonsEnabled}"
+                    Margin="2" />
+            <TextBlock Grid.Row="1" Grid.Column="0"
+                       Text="{Binding MinuteTens}"
+                       FontSize="24"
+                       HorizontalAlignment="Center"
+                       Margin="2" />
+            <Button Grid.Row="2" Grid.Column="0"
+                    Content="▽"
+                    Command="{Binding DecreaseMinuteTensCommand}"
+                    IsEnabled="{Binding AreAdjustButtonsEnabled}"
+                    Margin="2" />
+
+            <!-- 分 一の位 -->
+            <Button Grid.Row="0" Grid.Column="1"
+                    Content="△"
+                    Command="{Binding IncreaseMinuteOnesCommand}"
+                    IsEnabled="{Binding AreAdjustButtonsEnabled}"
+                    Margin="2" />
+            <TextBlock Grid.Row="1" Grid.Column="1"
+                       Text="{Binding MinuteOnes}"
+                       FontSize="24"
+                       HorizontalAlignment="Center"
+                       Margin="2" />
+            <Button Grid.Row="2" Grid.Column="1"
+                    Content="▽"
+                    Command="{Binding DecreaseMinuteOnesCommand}"
+                    IsEnabled="{Binding AreAdjustButtonsEnabled}"
+                    Margin="2" />
+
+            <!-- 秒 十の位 -->
+            <Button Grid.Row="0" Grid.Column="3"
+                    Content="△"
+                    Command="{Binding IncreaseSecondTensCommand}"
+                    IsEnabled="{Binding AreAdjustButtonsEnabled}"
+                    Margin="2" />
+            <TextBlock Grid.Row="1" Grid.Column="3"
+                       Text="{Binding SecondTens}"
+                       FontSize="24"
+                       HorizontalAlignment="Center"
+                       Margin="2" />
+            <Button Grid.Row="2" Grid.Column="3"
+                    Content="▽"
+                    Command="{Binding DecreaseSecondTensCommand}"
+                    IsEnabled="{Binding AreAdjustButtonsEnabled}"
+                    Margin="2" />
+
+            <!-- 秒 一の位 -->
+            <Button Grid.Row="0" Grid.Column="4"
+                    Content="△"
+                    Command="{Binding IncreaseSecondOnesCommand}"
+                    IsEnabled="{Binding AreAdjustButtonsEnabled}"
+                    Margin="2" />
+            <TextBlock Grid.Row="1" Grid.Column="4"
+                       Text="{Binding SecondOnes}"
+                       FontSize="24"
+                       HorizontalAlignment="Center"
+                       Margin="2" />
+            <Button Grid.Row="2" Grid.Column="4"
+                    Content="▽"
+                    Command="{Binding DecreaseSecondOnesCommand}"
+                    IsEnabled="{Binding AreAdjustButtonsEnabled}"
+                    Margin="2" />
+
+            <!-- 分・秒ラベル（それぞれ専用列の右下） -->
+            <TextBlock Grid.Row="1" Grid.Column="2"
+                       Text="分"
+                       FontSize="14"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom"
+                       Margin="0,0,4,0" />
+            <TextBlock Grid.Row="1" Grid.Column="5"
+                       Text="秒"
+                       FontSize="14"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom"
+                       Margin="0,0,4,0" />
+        </Grid>
+
+        <!-- 下部ボタン -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="{Binding StartStopButtonText}"
+                    Command="{Binding StartStopCommand}"
+                    Width="100"
+                    Height="40"
+                    Margin="5"
+                    Background="LightGreen" />
+            <Button Content="リセット"
+                    Command="{Binding ResetCommand}"
+                    IsEnabled="{Binding AreAdjustButtonsEnabled}"
+                    Width="80"
+                    Height="40"
+                    Margin="5"
+                    Background="LightCoral" />
+        </StackPanel>
+    </Grid>
+</Window>
