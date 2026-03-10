@@ -40,6 +40,7 @@
                     Width="120"
                     VerticalAlignment="Center"
                     Margin="0,0,5,0"
+                    IsMoveToPointEnabled="True"
                     Value="{Binding Path=RedValue, Mode=TwoWay}" />
             <TextBlock Text="{Binding Path=RedHex}" VerticalAlignment="Center" />
             <TextBlock Text=" / " VerticalAlignment="Center" />
@@ -56,11 +57,9 @@
                     Maximum="255" 
                     Width="120"
                     VerticalAlignment="Center"
-                    Margin="0,0,5,0">
-                <Slider.Value>
-                    <Binding Path="GreenValue" Mode="TwoWay" />
-                </Slider.Value>
-            </Slider>
+                    Margin="0,0,5,0"
+                    IsMoveToPointEnabled="True"
+                    Value="{Binding Path=GreenValue, Mode=TwoWay}" />
             <TextBlock Text="{Binding Path=GreenHex}" VerticalAlignment="Center" />
             <TextBlock Text=" / " VerticalAlignment="Center" />
             <TextBlock Text="{Binding Path=GreenValue}" VerticalAlignment="Center" />
@@ -76,11 +75,9 @@
                     Maximum="255" 
                     Width="120"
                     VerticalAlignment="Center"
-                    Margin="0,0,5,0">
-                <Slider.Value>
-                    <Binding Path="BlueValue" Mode="TwoWay" />
-                </Slider.Value>
-            </Slider>
+                    Margin="0,0,5,0"
+                    IsMoveToPointEnabled="True"
+                    Value="{Binding Path=BlueValue, Mode=TwoWay}" />
             <TextBlock Text="{Binding Path=BlueHex}" VerticalAlignment="Center" />
             <TextBlock Text=" / " VerticalAlignment="Center" />
             <TextBlock Text="{Binding Path=BlueValue}" VerticalAlignment="Center" />
