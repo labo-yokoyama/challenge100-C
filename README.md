@@ -13,7 +13,7 @@
 | v | 004 | 04_UnitConverter | 単位変換アプリ | 2026/03/05 | Copilot(VS2022) |   |
 |   | 005 |  | 三目並べ | 2026/xx/xx |  |   |
 | v | 006 | 06_MarkdownPreviewer | マークダウンプレビュー | 2026/03/11,03/23 | Gemini(VSCode) |   |
-|   | 007 |  | メモ帳アプリ(Json) | 2026/xx/xx |  |   |
+| v | 007 | 07_JsonNotepad | メモ帳アプリ(Json) | 2026/03/26 | Gemini(VSCode) |   |
 |   | 008 |  | Jsonプレビュー | 2026/xx/xx |  |   |
 |   | 009 |  | 星座占い or 電卓 | 2026/xx/xx |  |   |
 |   | 010 | 10_Todo | ToDoアプリ | 2026/xx/xx |  |   |

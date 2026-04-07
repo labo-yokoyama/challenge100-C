@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitConverter", "04_UnitConverter\UnitConverter.csproj", "{D1DE246C-2DDA-4B39-B8F3-EE692B35366E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownPreviewer", "06_MarkdownPreviewer\MarkdownPreviewer.csproj", "{CA37A917-7B48-43F5-8C2E-83C57F4896FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonNotepad", "07_JsonNotepad\JsonNotepad.csproj", "{E5F6G7H8-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,10 @@ Global
 		{CA37A917-7B48-43F5-8C2E-83C57F4896FB}.Release|x64.Build.0 = Release|Any CPU
 		{CA37A917-7B48-43F5-8C2E-83C57F4896FB}.Release|x86.ActiveCfg = Release|Any CPU
 		{CA37A917-7B48-43F5-8C2E-83C57F4896FB}.Release|x86.Build.0 = Release|Any CPU
+		{E5F6G7H8-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5F6G7H8-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5F6G7H8-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5F6G7H8-9I0J-1K2L-3M4N-5O6P7Q8R9S0T}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
