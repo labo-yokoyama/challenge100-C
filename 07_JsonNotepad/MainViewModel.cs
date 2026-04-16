@@ -1,18 +1,19 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
 using System.Windows;
-using System.Windows.Input;
-using Newtonsoft.Json;
+using Livet;
+using Livet.Commands;
+using Livet.Messaging;
 
 namespace JsonNotepad
 {
     /// <summary>
     /// メインウィンドウのビジネスロジックを管理する ViewModel です。
     /// </summary>
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : ViewModel
     {
+        private readonly JsonNotepadModel _model;
         private ObservableCollection<NoteItem> allNotes;
         private ObservableCollection<NoteItem> filteredNotes;
         private NoteItem selectedNote;
@@ -24,36 +25,43 @@ namespace JsonNotepad
         /// <summary>
         /// 新規作成コマンド
         /// </summary>
-        public ICommand NewCommand { get; private set; }
+        public ViewModelCommand NewCommand { get; private set; }
 
         /// <summary>
         /// 保存コマンド
         /// </summary>
-        public ICommand SaveCommand { get; private set; }
+        public ViewModelCommand SaveCommand { get; private set; }
 
         /// <summary>
         /// 削除コマンド
         /// </summary>
-        public ICommand DeleteCommand { get; private set; }
+        public ViewModelCommand DeleteCommand { get; private set; }
+
+        /// <summary>
+        /// コピーコマンド
+        /// </summary>
+        public ViewModelCommand CopyCommand { get; private set; }
 
         /// <summary>
         /// 初期化コマンド
         /// </summary>
-        public ICommand InitializeCommand { get; private set; }
+        public ViewModelCommand InitializeCommand { get; private set; }
 
         /// <summary>
         /// MainViewModel の新しいインスタンスを初期化します。
         /// </summary>
         public MainViewModel()
         {
+            _model = new JsonNotepadModel();
             allNotes = new ObservableCollection<NoteItem>();
             filteredNotes = new ObservableCollection<NoteItem>();
             notesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "notes");
 
-            NewCommand = new RelayCommand(CreateNewNote);
-            SaveCommand = new RelayCommand(SaveNote);
-            DeleteCommand = new RelayCommand(DeleteNote, CanDelete);
-            InitializeCommand = new RelayCommand(Initialize);
+            NewCommand = new ViewModelCommand(CreateNewNote);
+            SaveCommand = new ViewModelCommand(SaveNote);
+            DeleteCommand = new ViewModelCommand(DeleteNote, CanDelete);
+            CopyCommand = new ViewModelCommand(CopyNote);
+            InitializeCommand = new ViewModelCommand(Initialize);
         }
 
         /// <summary>
@@ -61,7 +69,7 @@ namespace JsonNotepad
         /// </summary>
         public void Initialize()
         {
-            InitializeDirectory();
+            _model.InitializeDirectory(notesDirectory);
             LoadAllNotes();
         }
 
@@ -81,9 +89,15 @@ namespace JsonNotepad
             get { return selectedNote; }
             set
             {
+                if (selectedNote == value) return;
                 selectedNote = value;
                 RaisePropertyChanged("SelectedNote");
+
+                // 選択されたメモの内容をエディタに反映（またはクリア）
                 LoadSelectedNoteToEditor();
+                
+                // 選択が変更されたら削除ボタンの活性状態を更新
+                if (DeleteCommand != null) DeleteCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -128,37 +142,18 @@ namespace JsonNotepad
         }
 
         /// <summary>
-        /// 保存先ディレクトリの存在確認と作成を行います。
-        /// </summary>
-        private void InitializeDirectory()
-        {
-            if (!Directory.Exists(notesDirectory))
-            {
-                Directory.CreateDirectory(notesDirectory);
-            }
-        }
-
-        /// <summary>
         /// 保存されているすべてのメモを読み込みます。
         /// </summary>
         private void LoadAllNotes()
         {
             allNotes.Clear();
-            string[] files = Directory.GetFiles(notesDirectory, "*.json");
+            string[] files = _model.GetNoteFiles(notesDirectory);
             foreach (string file in files)
             {
-                try
+                NoteItem note = _model.LoadFile(file);
+                if (note != null)
                 {
-                    string json = File.ReadAllText(file, Encoding.UTF8);
-                    NoteItem note = JsonConvert.DeserializeObject<NoteItem>(json);
-                    if (note != null)
-                    {
-                        allNotes.Add(note);
-                    }
-                }
-                catch (Exception)
-                {
-                    // ファイル読み込み失敗時はスキップ
+                    allNotes.Add(note);
                 }
             }
             ApplyFilter();
@@ -172,7 +167,8 @@ namespace JsonNotepad
             filteredNotes.Clear();
             foreach (NoteItem note in allNotes)
             {
-                if (string.IsNullOrEmpty(searchText) || note.Title.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                // note.Title が null の場合に IndexOf で落ちるのを防ぐ
+                if (string.IsNullOrEmpty(searchText) || (note.Title != null && note.Title.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0))
                 {
                     filteredNotes.Add(note);
                 }
@@ -184,9 +180,10 @@ namespace JsonNotepad
         /// </summary>
         private void CreateNewNote()
         {
-            SelectedNote = null;
+            // 編集内容を先にクリアしてから選択を解除する（順序が重要です）
             EditTitle = string.Empty;
             EditContent = string.Empty;
+            SelectedNote = null;
         }
 
         /// <summary>
@@ -198,6 +195,22 @@ namespace JsonNotepad
             {
                 EditTitle = selectedNote.Title;
                 EditContent = selectedNote.Content;
+            }
+            else
+            {
+                EditTitle = string.Empty;
+                EditContent = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 編集中の内容をクリップボードにコピーします。
+        /// </summary>
+        private void CopyNote()
+        {
+            if (!string.IsNullOrEmpty(editContent))
+            {
+                Clipboard.SetText(editContent);
             }
         }
 
@@ -216,16 +229,10 @@ namespace JsonNotepad
             note.Content = editContent;
             note.LastModified = DateTime.Now;
 
-            string filePath = Path.Combine(notesDirectory, note.Title + ".json");
-            
-            // 以前のファイル名と異なる場合は古いファイルを削除（リネーム対応）
+            // 以前のファイル名と異なる場合は古いファイルを削除（リネーム対応）し、リストから一旦削除
             if (selectedNote != null && selectedNote.Title != editTitle)
             {
-                string oldPath = Path.Combine(notesDirectory, selectedNote.Title + ".json");
-                if (File.Exists(oldPath))
-                {
-                    File.Delete(oldPath);
-                }
+                _model.DeleteFile(notesDirectory, selectedNote.Title);
                 allNotes.Remove(selectedNote);
             }
             else if (selectedNote != null)
@@ -235,17 +242,17 @@ namespace JsonNotepad
 
             try
             {
-                string json = JsonConvert.SerializeObject(note);
-                File.WriteAllText(filePath, json, Encoding.UTF8);
+                _model.SaveFile(notesDirectory, note);
                 
                 allNotes.Add(note);
                 ApplyFilter();
                 SelectedNote = note;
-                MessageBox.Show("保存しました。", "JsonNotepad", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                Messenger.Raise(new InformationMessage("保存しました。", "JsonNotepad", MessageBoxImage.Information, "InfoMessage"));
             }
             catch (Exception ex)
             {
-                MessageBox.Show("保存に失敗しました: " + ex.Message, "JsonNotepad", MessageBoxButton.OK, MessageBoxImage.Error);
+                Messenger.Raise(new InformationMessage("保存に失敗しました: " + ex.Message, "JsonNotepad", MessageBoxImage.Error, "InfoMessage"));
             }
         }
 
@@ -257,7 +264,7 @@ namespace JsonNotepad
         {
             if (string.IsNullOrWhiteSpace(editTitle))
             {
-                MessageBox.Show("タイトルを入力してください", "JsonNotepad", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Messenger.Raise(new InformationMessage("タイトルを入力してください", "JsonNotepad", MessageBoxImage.Warning, "InfoMessage"));
                 return false;
             }
 
@@ -269,7 +276,7 @@ namespace JsonNotepad
                 {
                     if (c == currentInvalidChars[i])
                     {
-                        MessageBox.Show(string.Format("\"{0}\"はファイル名に使えません", c), "JsonNotepad", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        Messenger.Raise(new InformationMessage(string.Format("\"{0}\"はファイル名に使えません", c), "JsonNotepad", MessageBoxImage.Warning, "InfoMessage"));
                         return false;
                     }
                 }
@@ -280,7 +287,6 @@ namespace JsonNotepad
         /// <summary>
         /// メモを削除できるかどうかを判断します。
         /// </summary>
-        /// <returns>削除可能な場合は true</returns>
         private bool CanDelete()
         {
             return selectedNote != null;
@@ -293,13 +299,12 @@ namespace JsonNotepad
         {
             if (selectedNote == null) return;
 
-            if (MessageBox.Show("このメモを削除しますか？", "JsonNotepad", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            var message = new ConfirmationMessage("このメモを削除しますか？", "削除の確認", MessageBoxImage.Question, MessageBoxButton.YesNo, "ConfirmMessage");
+            Messenger.GetResponse(message);
+
+            if (message.Response == true)
             {
-                string filePath = Path.Combine(notesDirectory, selectedNote.Title + ".json");
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
+                _model.DeleteFile(notesDirectory, selectedNote.Title);
 
                 allNotes.Remove(selectedNote);
                 ApplyFilter();
