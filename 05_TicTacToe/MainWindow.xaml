@@ -1,0 +1,85 @@
+<Window x:Class="TicTacToe.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:TicTacToe"
+        Title="05 TicTacToe (WPF)"
+        Width="250"
+        Height="320"
+        Background="White"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style x:Key="CellButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="32" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                    <Setter Property="Background" Value="#FFFFF59D" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsCellEnabled}" Value="False">
+                    <Setter Property="Opacity" Value="0.6" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="{Binding StatusMessage}"
+                   FontSize="14"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,10" />
+
+        <Button Grid.Row="1"
+                Content="ゲーム開始"
+                Command="{Binding StartGameCommand}"
+                Height="28"
+                Margin="0,0,0,10" />
+
+        <Border Grid.Row="2"
+                BorderBrush="Black"
+                BorderThickness="2">
+            <ItemsControl ItemsSource="{Binding Cells}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="3" Columns="3" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Style="{StaticResource CellButtonStyle}"
+                                Content="{Binding MarkText}"
+                                Command="{Binding DataContext.CellClickCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                CommandParameter="{Binding Index}"
+                                IsEnabled="{Binding IsCellEnabled}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+
+        <TextBlock Grid.Row="3"
+                   Text="○: あなた　×: コンピューター"
+                   FontSize="12"
+                   Foreground="#FF666666"
+                   HorizontalAlignment="Center"
+                   Margin="0,10,0,0" />
+    </Grid>
+</Window>
+
