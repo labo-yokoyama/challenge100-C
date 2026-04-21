@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- 変更: ターゲットフレームワークを net452 に変更 -->
+    <TargetFramework>net452</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <!-- 追加: C# のバージョンを 5.0 に固定 -->
+    <LangVersion>5</LangVersion>
+    <!-- 削除: .NET 9.0 用の設定 (Nullable, ImplicitUsings) は削除 -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.18.3" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3800.47" />
+  </ItemGroup>
+
+</Project>

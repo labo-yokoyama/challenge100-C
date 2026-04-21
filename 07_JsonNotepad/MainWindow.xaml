@@ -1,0 +1,90 @@
+<Window x:Class="JsonNotepad.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+        xmlns:local="clr-namespace:JsonNotepad"
+        Title="JsonNotepad" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
+
+    <i:Interaction.Triggers>
+        <!-- 画面表示時に初期化処理を実行 -->
+        <i:EventTrigger EventName="ContentRendered">
+            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize" />
+        </i:EventTrigger>
+
+        <!-- 保存完了や警告などの情報メッセージ用 -->
+        <l:InteractionMessageTrigger MessageKey="InfoMessage" Messenger="{Binding Messenger}">
+            <l:InformationDialogInteractionMessageAction />
+        </l:InteractionMessageTrigger>
+
+        <!-- 削除確認などの確認メッセージ用 -->
+        <l:InteractionMessageTrigger MessageKey="ConfirmMessage" Messenger="{Binding Messenger}">
+            <l:ConfirmationDialogInteractionMessageAction />
+        </l:InteractionMessageTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- 左側：管理パネル -->
+        <Grid Grid.Column="0" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                <TextBlock Text="検索" Margin="0,0,0,5" />
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <ListBox Grid.Row="1" ItemsSource="{Binding FilteredNotes}" SelectedItem="{Binding SelectedNote}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                <Button Content="新規作成" Width="80" Height="30" Margin="5" Command="{Binding NewCommand}" />
+                <Button Content="削除" Width="80" Height="30" Margin="5" Command="{Binding DeleteCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- 右側：編集パネル -->
+        <Grid Grid.Column="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+                <Button Content="コピー" Width="80" Height="30" Margin="0,0,10,0" Command="{Binding CopyCommand}" />
+                <Button Content="保存" Width="80" Height="30" Command="{Binding SaveCommand}" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                <TextBlock Text="タイトル" Margin="0,0,0,5" />
+                <TextBox Text="{Binding EditTitle, UpdateSourceTrigger=PropertyChanged}" FontSize="16" />
+            </StackPanel>
+
+            <DockPanel Grid.Row="2">
+                <TextBlock Text="内容" DockPanel.Dock="Top" Margin="0,0,0,5" />
+                <TextBox Text="{Binding EditContent, UpdateSourceTrigger=PropertyChanged}" 
+                         AcceptsReturn="True" 
+                         TextWrapping="Wrap" 
+                         VerticalScrollBarVisibility="Auto" />
+            </DockPanel>
+        </Grid>
+    </Grid>
+</Window>
